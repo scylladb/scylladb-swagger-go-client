@@ -26,6 +26,11 @@ GO_BUILD_FLAGS ?=-trimpath
 
 GO_VERSION :=$(shell $(GO) version | sed -E -e 's/.*go([0-9]+.[0-9]+.[0-9]+).*/\1/')
 
+SWAGGER ?=$(GO) run ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+
+SCYLLADB_SWAGGER_PATH ?=scylladb
+SCYLLADB_SWAGGER_GEN_PATH ?=scylladb/gen
+
 # We need to force locale so different envs sort files the same way for recursive traversals
 diff :=LC_COLLATE=C diff --no-dereference -N
 
@@ -51,6 +56,19 @@ endif
 ifneq "$(GO_REQUIRED_MIN_VERSION)" ""
 $(call require_minimal_version,$(GO),GO_REQUIRED_MIN_VERSION,$(GO_VERSION))
 endif
+
+# $1 - application name
+# $2 - spec file to use
+# $4 - template directory
+# $3 - target directory
+define generate-swagger-client
+	$(SWAGGER) generate client --name='$(1)' --spec='$(2)' --template-dir='$(3)' --target='$(4)'
+endef
+
+update-scylladbclient:
+	$(call generate-swagger-client,scylladb_v1,$(SCYLLADB_SWAGGER_PATH)/scylladb_v1.json,$(SCYLLADB_SWAGGER_PATH)/templates,$(SCYLLADB_SWAGGER_GEN_PATH)/v1)
+	$(call generate-swagger-client,scylladb_v2,$(SCYLLADB_SWAGGER_PATH)/scylladb_v2.json,$(SCYLLADB_SWAGGER_PATH)/templates,$(SCYLLADB_SWAGGER_GEN_PATH)/v2)
+.PHONY: update-scylladbclient
 
 update-gofmt:
 	find ./ -name '*.go' -not -path './vendor/*' -exec $(GOFMT) -s -w {} '+'
@@ -94,7 +112,7 @@ verify-deps:
 	)
 .PHONY: verify-deps
 
-update: update-gofmt
+update: update-gofmt update-scylladbclient
 .PHONY: update
 
 build:
