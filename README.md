@@ -1,5 +1,6 @@
 # ScyllaDB Swagger Go client
 
+[![CI](https://github.com/scylladb/scylladb-swagger-go-client/actions/workflows/go.yaml/badge.svg?branch=master)](https://github.com/scylladb/scylladb-swagger-go-client/actions/workflows/go.yaml?query=branch%3Amaster)
 [![Language](https://img.shields.io/badge/Language-Go-blue.svg)](https://golang.org/)
 
 This repository contains a Swagger client implementation for ScyllaDB products in the Go programming language. 

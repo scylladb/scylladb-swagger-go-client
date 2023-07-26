@@ -1,0 +1,85 @@
+# Copyright (C) 2023 ScyllaDB
+
+name: Go
+
+on:
+  push:
+    # Restrict the branches to only those we want to promote from.
+    branches:
+    - 'master'
+    - 'v[0-9]+.[0-9]+'
+    # Act only on temporary tags, the final ones are created by manually promoting
+    # an existing candidate image, after it goes through QA. We need to be carefull
+    # to avoid overwritting those, building from the same sources may not result
+    # in the same image content that was tested, e.g. if a base image changed in the meantime.
+    tags:
+    - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+    - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+    - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+  pull_request:
+    branches:
+    - '**'
+    types:
+    - opened
+    - edited
+    - reopened
+    - synchronize
+  schedule:
+  - cron:  '0 23 * * *' # daily at 11pm
+
+env:
+  go_version: '1.20'
+  GOPATH: ${{ github.workspace }}/go
+  git_repo_path: ${{ github.workspace }}/go/src/github.com/scylladb/scylladb-swagger-go-client
+
+defaults:
+  run:
+    shell: bash
+    working-directory: "./go/src/github.com/scylladb/scylladb-swagger-go-client"
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: ${{ env.git_repo_path }}
+    - name: Setup go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.go_version }}
+    - name: Verify
+      run: make verify --warn-undefined-variables
+  
+  verify-deps:
+    name: Verify dependencies
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: ${{ env.git_repo_path }}
+    - name: Setup go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.go_version }}
+    - name: Verify dependencies
+      run: make verify-deps --warn-undefined-variables
+  
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        path: ${{ env.git_repo_path }}
+        fetch-depth: 0
+    - name: Setup go
+      uses: actions/setup-go@v3
+      with:
+        go-version: ${{ env.go_version }}
+    - name: Build
+      run: make build --warn-undefined-variables
