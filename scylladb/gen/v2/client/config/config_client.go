@@ -294,6 +294,8 @@ type ClientService interface {
 
 	FindConfigReplaceNode(params *FindConfigReplaceNodeParams, opts ...ClientOption) (*FindConfigReplaceNodeOK, error)
 
+	FindConfigReplaceNodeFirstBoot(params *FindConfigReplaceNodeFirstBootParams, opts ...ClientOption) (*FindConfigReplaceNodeFirstBootOK, error)
+
 	FindConfigReplaceToken(params *FindConfigReplaceTokenParams, opts ...ClientOption) (*FindConfigReplaceTokenOK, error)
 
 	FindConfigRequestScheduler(params *FindConfigRequestSchedulerParams, opts ...ClientOption) (*FindConfigRequestSchedulerOK, error)
@@ -5429,6 +5431,43 @@ func (a *Client) FindConfigReplaceNode(params *FindConfigReplaceNodeParams, opts
 	}
 	// unexpected success response
 	unexpectedSuccess := result.(*FindConfigReplaceNodeDefault)
+	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
+}
+
+/*
+FindConfigReplaceNodeFirstBoot The Host ID of a dead node to replace. If the replacing node has already been bootstrapped successfully, this option will be ignored.
+*/
+func (a *Client) FindConfigReplaceNodeFirstBoot(params *FindConfigReplaceNodeFirstBootParams, opts ...ClientOption) (*FindConfigReplaceNodeFirstBootOK, error) {
+	// TODO: Validate the params before sending
+	if params == nil {
+		params = NewFindConfigReplaceNodeFirstBootParams()
+	}
+	op := &runtime.ClientOperation{
+		ID:                 "find_config_replace_node_first_boot",
+		Method:             "GET",
+		PathPattern:        "/config/replace_node_first_boot",
+		ProducesMediaTypes: []string{"application/json"},
+		ConsumesMediaTypes: []string{"application/json"},
+		Schemes:            []string{"http", "https"},
+		Params:             params,
+		Reader:             &FindConfigReplaceNodeFirstBootReader{formats: a.formats},
+		Context:            params.Context,
+		Client:             params.HTTPClient,
+	}
+	for _, opt := range opts {
+		opt(op)
+	}
+
+	result, err := a.transport.Submit(op)
+	if err != nil {
+		return nil, err
+	}
+	success, ok := result.(*FindConfigReplaceNodeFirstBootOK)
+	if ok {
+		return success, nil
+	}
+	// unexpected success response
+	unexpectedSuccess := result.(*FindConfigReplaceNodeFirstBootDefault)
 	return nil, runtime.NewAPIError("unexpected success response: content available as default response in error", unexpectedSuccess, unexpectedSuccess.Code())
 }
 
