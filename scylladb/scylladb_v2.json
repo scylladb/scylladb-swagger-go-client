@@ -4038,6 +4038,33 @@
         }
       }
     },
+    "/config/replace_node_first_boot": {
+      "get": {
+        "description": "The Host ID of a dead node to replace. If the replacing node has already been bootstrapped successfully, this option will be ignored.",
+        "operationId": "find_config_replace_node_first_boot",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "config"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Config value",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "schema": {
+              "$ref": "#/definitions/ErrorModel"
+            }
+          }
+        }
+      }
+    },
     "/config/replace_address_first_boot": {
       "get": {
         "description": "Like replace_address option, but if the node has been bootstrapped successfully it will be ignored. Same as -Dcassandra.replace_address_first_boot.",
